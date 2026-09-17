@@ -158,4 +158,40 @@ class TranscriptTest {
 
         assertEquals("all 3 models failed", (t.rows.single() as Row.Failed).reason)
     }
+
+    @Test
+    fun aScheduledExchangeFoldsInAboveItsAnswer() {
+        // A store the chat does not read would open on an answer with no
+        // question above it, which is the failure the fold exists to stop.
+        val t = Transcript()
+        t.scheduled("check the build", answered = "it passed", failed = null)
+
+        assertEquals(2, t.rows.size)
+        assertEquals("check the build", (t.rows[0] as Row.Said).text)
+        assertEquals("it passed", (t.rows[1] as Row.Answered).text)
+    }
+
+    @Test
+    fun aScheduledTurnWithoutAnAnswerFailsAsARow() {
+        val t = Transcript()
+        t.scheduled("check the build", answered = null, failed = "the turn ended without an answer")
+
+        assertEquals("the turn ended without an answer", (t.rows[1] as Row.Failed).reason)
+    }
+
+    @Test
+    fun aScheduledFoldAndALiveTurnShareOneCounter() {
+        // ChatScreen keys rows on id; two counters would hand a scheduled row
+        // the id a live one already holds. What a person typed after the fold
+        // starts its own answer, for the reason
+        // sayingSomethingClosesTheAnswerBeforeIt states, which is why there
+        // are four ids and not three.
+        val t = Transcript()
+        t.scheduled("check the build", "it passed", null)
+        t.said("and now this")
+        t.apply(TurnEvent.Text("ok"))
+
+        assertEquals(listOf(0, 1, 2, 3), t.rows.map { it.id })
+        assertEquals("ok", (t.rows.last() as Row.Answered).text)
+    }
 }

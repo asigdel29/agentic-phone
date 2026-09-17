@@ -81,6 +81,22 @@ class TurnDriver(
         publish()
     }
 
+    /**
+     * Fold a scheduled turn's outcome into the conversation.
+     *
+     * # Rely
+     * Called when the driver is built, before a turn runs. While one is in
+     * flight the call is dropped rather than folded: interleaving a finished
+     * exchange between a round's question and its answer would read as part of
+     * that turn. The store still holds the outcome and the next driver carries
+     * it, so a dropped one is late rather than lost.
+     */
+    fun scheduled(what: String, answered: String?, failed: String?) {
+        if (_isRunning.value) return
+        script.scheduled(what, answered, failed)
+        publish()
+    }
+
     private fun start(turn: () -> kotlinx.coroutines.flow.Flow<TurnEvent>) {
         val mine = ++generation
         _isRunning.value = true
