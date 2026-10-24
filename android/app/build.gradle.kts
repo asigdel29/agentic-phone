@@ -148,6 +148,11 @@ dependencies {
     // rather than inferred so a bump in one is a decision in the other.
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
+    // The turn a schedule runs is a WorkManager job: it must outlive the
+    // process the screen would cancel it with (#600). The version is copied
+    // rather than inferred, like the line above, so a bump is a decision.
+    implementation("androidx.work:work-runtime-ktx:2.12.0")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test:runner:1.7.0")

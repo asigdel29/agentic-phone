@@ -125,6 +125,15 @@ class MainActivity : ComponentActivity() {
     private val connections by lazy { Connections(applicationContext) }
 
     /**
+     * The turns this person has asked for later, and what came back.
+     *
+     * Built once for the process like the stores above it. The worker is the
+     * only writer while the turn runs; this side reads the finished rows and
+     * forgets them as a driver takes each one.
+     */
+    private val scheduled by lazy { ScheduledTurns(applicationContext) }
+
+    /**
      * The microphone, built once for the process like the three above it.
      *
      * The application context rather than this Activity: it outlives a rotation
@@ -326,7 +335,7 @@ class MainActivity : ComponentActivity() {
     ): TurnDriver {
         val scope = rememberCoroutineScope()
         return remember(ready.core, connected) {
-            TurnDriver(
+            val driver = TurnDriver(
                 Agent(
                     router = ready.core.routing(),
                     // BuildConfig rather than the client's default, so where a
@@ -358,6 +367,16 @@ class MainActivity : ComponentActivity() {
                 ),
                 scope,
             )
+            // A turn that ran with the app closed folds here, on the first
+            // driver that exists to hold it: scheduled() writes the exchange
+            // in as it went, and the store forgets what a driver has taken.
+            // A fresh driver is never mid-turn, so the drop path in
+            // scheduled() cannot fire, and the rely it states holds.
+            scheduled.completed.forEach { row ->
+                driver.scheduled(row.what, row.answered, row.failed)
+                scheduled.forget(row.id)
+            }
+            driver
         }
     }
 

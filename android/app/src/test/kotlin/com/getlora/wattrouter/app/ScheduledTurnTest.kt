@@ -11,6 +11,7 @@
 
 package com.getlora.wattrouter.app
 
+import com.getlora.wattrouter.Row
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
@@ -91,5 +92,35 @@ class ScheduledTurnTest {
         val saved = """[{"at": $now, "what": "check the build"}]"""
 
         assertEquals(emptyList<Scheduled>(), rowsFrom(saved))
+    }
+
+    @Test
+    fun anAnswerIsTheOutcomeOfTheTurnThatSaidIt() {
+        // The worker marks the store with what the turn left, and a turn
+        // whose last word was an answer has an answer in it -- tools and
+        // everything before that are how it got there.
+        val rows = listOf(
+            Row.Said(0, "check the build"),
+            Row.Used(1, "git_status", "clean"),
+            Row.Answered(2, "neural", "it passed"),
+        )
+
+        assertEquals(TurnOutcome("it passed", null), answeredFrom(rows))
+    }
+
+    @Test
+    fun aTurnThatStoppedWithoutAnsweringComesBackAsTheReason() {
+        // A turn whose last word is a failure has a reason for the row: the
+        // fold into the conversation shows it as the failure, the same words
+        // the driver's own failed() writes.
+        val rows = listOf(
+            Row.Said(0, "check the build"),
+            Row.Failed(1, "the model would not be reached"),
+        )
+
+        assertEquals(
+            TurnOutcome(null, "the model would not be reached"),
+            answeredFrom(rows),
+        )
     }
 }
