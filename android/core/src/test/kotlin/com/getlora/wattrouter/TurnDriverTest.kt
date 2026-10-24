@@ -174,4 +174,34 @@ class TurnDriverTest {
         assertFalse(driver.isRunning.value)
         assertTrue(driver.rows.value.last() is Row.Failed)
     }
+
+    @Test
+    fun aScheduledExchangeEntersTheConversationBeforeAnythingRuns() = runTest {
+        val driver = driving(agentSaying(StreamEvent.Text("hi")))
+
+        driver.scheduled("check the build", "it passed", null)
+        driver.send("hello")
+
+        // The scheduled pair above the live one, and one turn each.
+        assertEquals(4, driver.rows.value.size)
+        assertEquals("check the build", (driver.rows.value[0] as Row.Said).text)
+        assertTrue(driver.rows.value[1] is Row.Answered)
+        assertFalse(driver.isRunning.value)
+    }
+
+    @Test
+    fun aScheduledOutcomeArrivingMidTurnIsLateRatherThanInterleaved() = runTest {
+        // Folding a finished exchange between a round's question and its
+        // answer would read as part of the turn in flight. The store still
+        // holds it and the next driver carries it, so a dropped one is late,
+        // not lost.
+        val gate = CompletableDeferred<Unit>()
+        val driver = driving(Agent(routing, ChainWalk(Holding(gate)), ToolBox(emptyList())))
+
+        driver.send("go")
+        driver.scheduled("check the build", "it passed", null)
+
+        assertEquals(1, driver.rows.value.count { it is Row.Said })
+        gate.complete(Unit)
+    }
 }

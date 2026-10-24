@@ -109,6 +109,25 @@ class Transcript {
         backing += Row.Interrupted(next++)
     }
 
+    /**
+     * Fold in an exchange that ran with nobody watching: what was asked when it
+     * was scheduled, and the answer or the reason there was none.
+     *
+     * The record a scheduled turn leaves in its store would otherwise open the
+     * conversation on an answer with no question above it. Its ids come from
+     * this counter, because ChatScreen keys rows on id and a second counter
+     * would collide with the live one.
+     */
+    fun scheduled(what: String, answered: String?, failed: String?) {
+        open = null
+        pending = null
+        backing += Row.Said(next++, what)
+        when {
+            answered != null -> backing += Row.Answered(next++, null, answered)
+            failed != null -> backing += Row.Failed(next++, failed)
+        }
+    }
+
     /** Record that the turn stopped without answering. */
     fun failed(reason: String) {
         open = null
