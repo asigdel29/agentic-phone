@@ -141,7 +141,12 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.activity:activity-compose:1.13.0")
 
-
+    // The scheduled-turn store hand-writes its JSON, the way Connections does
+    // in core, and so needs the same library. It is `implementation` in core
+    // rather than `api`, which is right: the app module should name what it
+    // compiles against rather than inherit it, and the version is copied
+    // rather than inferred so a bump in one is a decision in the other.
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.3.0")
