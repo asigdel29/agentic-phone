@@ -44,9 +44,9 @@ pluginManagement {
     // Gradle 9.7 is enough for it, which was the thing to check before bumping:
     // AGP 9.3 needing a newer Gradle would have moved ci.yml too.
     plugins {
-        id("com.android.application") version "9.4.0"
-        id("com.android.library") version "9.4.0"
-        id("org.jetbrains.kotlin.plugin.compose") version "2.4.10"
+        id("com.android.application") version "9.4.1"
+        id("com.android.library") version "9.4.1"
+        id("org.jetbrains.kotlin.plugin.compose") version "2.4.20"
     }
 }
 
