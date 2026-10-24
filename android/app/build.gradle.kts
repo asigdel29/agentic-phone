@@ -134,7 +134,7 @@ dependencies {
     // One version for every Compose artefact, which is what the bill of
     // materials is for: the compiler and the runtime disagreeing is a class of
     // failure that reports itself as a missing method at runtime.
-    val compose = platform("androidx.compose:compose-bom:2026.08.00")
+    val compose = platform("androidx.compose:compose-bom:2026.09.00")
     implementation(compose)
     androidTestImplementation(compose)
 
