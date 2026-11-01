@@ -73,7 +73,7 @@ dependencies {
     // is a decision rather than a default, so `buildJsonObject` is the honest
     // shape and the plugin would be a version to keep in step with AGP for
     // nothing.
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.12.0")
 
     // A cold Flow is the seam a model's answer arrives through: nothing is
     // requested until something collects, cancelling the collector cancels the
@@ -81,9 +81,9 @@ dependencies {
     // parameter every caller has to remember. `api` rather than
     // `implementation` because Inference.complete returns one, so the app
     // module needs the type on its own compile classpath.
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.12.0")
 
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.12.0")
 
     // JUnit by explicit coordinate rather than kotlin("test"): AGP 9 bundles
     // Kotlin and does not expose its version to that helper, so the helper
